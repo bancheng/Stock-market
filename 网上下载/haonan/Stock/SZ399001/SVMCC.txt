@@ -1,0 +1,9 @@
+直接以收盘价为标签进行预测：
+ C0.100000,RightRate0.496599
+ C 0.100000 ,bestRightRate0.496599
+ C0.500000,RightRate0.496599
+ C 0.500000 ,bestRightRate0.496599
+ C1.000000,RightRate0.489796
+ C5.000000,RightRate0.469388
+ C10.000000,RightRate0.455782
+Best Parmaters: C 0.100000 ,bestRightRate0.496599Best Parmaters: C 0.500000 ,bestRightRate0.496599

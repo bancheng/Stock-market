@@ -86,35 +86,35 @@ class LSTMlayer:
 
             return [bh,sc]
 
-        x = T.matrix('x')
-        y = T.ivector('y')
-        lr = T.scalar('lr')
+        self.x = T.matrix('x')
+        self.y = T.ivector('y')
+        self.lr = T.scalar('lr')
         [result_b, result_s], updates = theano.scan(_cellcalculate,
                                                 truncate_gradient=-1,
-                                                sequences=x,
+                                                sequences=self.x,
                                                 outputs_info=[np.zeros(self.n_hidden),np.zeros(self.n_hidden)])  # 全都初始化为0,不知道对不对.
 
         classiffier = T.nnet.softmax(T.dot(result_b,self.w)+self.b)
         _predict = T.argmax(classiffier)
         self.predict = theano.function(
-            inputs=[x],
+            inputs=[self.x],
             outputs=_predict,
             allow_input_downcast=True
         )
 
-        self._negative_log_likelihood = -T.mean(T.log(classiffier)[T.arange(y.shape[0]),y])
+        self._negative_log_likelihood = -T.mean(T.log(classiffier)[T.arange(self.y.shape[0]),self.y])
 
         self.gparams =T.grad(self._negative_log_likelihood,self.params)
-        updates = [(params,params-lr*gparam)for params,gparam in zip(self.params,self.gparams)]
+        updates = [(params,params-self.lr*gparam)for params,gparam in zip(self.params,self.gparams)]
         self.negative_log_likehood = theano.function(
-            inputs = [x,y,lr],
+            inputs = [self.x,self.y,self.lr],
             outputs = self._negative_log_likelihood,
             updates = updates,
             allow_input_downcast=True
         )
-        _precision = 1. - T.mean(T.neq(_predict,y))
+        _precision = 1. - T.mean(T.neq(_predict,self.y))
         self.precision = theano.function(
-            inputs=[x,y],
+            inputs=[self.x,self.y],
             outputs=_precision,
             allow_input_downcast=True
         )
@@ -131,16 +131,14 @@ def sgd_optimization(lr=1,n_epochs=100,filemane='data.pkl',batch_size=1,n_input=
         n_hidden=n_hidden,
         n_output=n_output
     )
-    x=T.matrix('x')
-    y=T.ivector('y')
     updates = [
         (params,params-lr*gparams)for params,gparams in zip(classifier.params,classifier.gparams)
     ]
     train_model = theano.function(
-        inputs=[x,y],
+        inputs=[classifier.x,classifier.y],
         outputs=classifier._negative_log_likelihood,
         updates = updates,
-        allow_input_downcast = True
+        allow_input_downcast=True
     )
 
     epoche=0
